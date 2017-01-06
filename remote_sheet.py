@@ -16,9 +16,6 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Sheets API Python Quickstart'
 
-spreadsheetId = '1yHpDejkJ-znUIRmvNA4Z64fJPpBo29Kl11Z3WRpD3rA'
-max_column_index = 1
-
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -50,7 +47,23 @@ def get_credentials():
     return credentials
 
 
-def write_idea(timestamp, idea_string):
+def setup_sheet(spreadsheet_id):
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+                    'version=v4')
+    service = discovery.build('sheets', 'v4', http=http,
+                              discoveryServiceUrl=discoveryUrl)
+
+    body = {
+      'values': [['Date', 'Idea']]
+    }
+    result = service.spreadsheets().values().update(
+        spreadsheetId=spreadsheet_id, range='DefaultBank!A1:B1',
+        valueInputOption='RAW', body=body).execute()
+
+
+def write_idea(timestamp, idea_string, spreadsheet_id):
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
@@ -62,11 +75,11 @@ def write_idea(timestamp, idea_string):
       'values': [[timestamp, idea_string]]
     }
     result = service.spreadsheets().values().append(
-        spreadsheetId=spreadsheetId, range='DefaultBank!A2:B2',
+        spreadsheetId=spreadsheet_id, range='DefaultBank!A2:B2',
         valueInputOption='RAW', body=body).execute()
 
 
-def read_ideas():
+def read_ideas(spreadsheet_id):
     '''
     Returns a list of ideas (date, idea)
     '''
@@ -79,12 +92,12 @@ def read_ideas():
 
     rangeName = 'DefaultBank!A2:B'
     result = service.spreadsheets().values().get(
-        spreadsheetId=spreadsheetId, range=rangeName).execute()
+        spreadsheetId=spreadsheet_id, range=rangeName).execute()
     values = result.get('values', [])
     idea_list = [(idea_date.parse_date(d), idea) for [d, idea] in values]
     return idea_list
 
 
 if __name__ == '__main__':
-    write_idea('2017-01-01', 'sunday')
+    write_idea('2017-01-01', 'the first idea of the year')
     read_ideas()
