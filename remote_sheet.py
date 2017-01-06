@@ -50,10 +50,10 @@ def get_credentials():
 def setup_sheet(spreadsheet_id):
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
-    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+    discovery_url = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
     service = discovery.build('sheets', 'v4', http=http,
-                              discoveryServiceUrl=discoveryUrl)
+                              discoveryServiceUrl=discovery_url)
 
     body = {
       'values': [['Date', 'Idea']]
@@ -66,10 +66,10 @@ def setup_sheet(spreadsheet_id):
 def write_idea(timestamp, idea_string, spreadsheet_id):
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
-    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+    discovery_url = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
     service = discovery.build('sheets', 'v4', http=http,
-                              discoveryServiceUrl=discoveryUrl)
+                              discoveryServiceUrl=discovery_url)
 
     body = {
       'values': [[timestamp, idea_string]]
@@ -85,10 +85,10 @@ def read_ideas(spreadsheet_id):
     '''
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
-    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+    discovery_url = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
     service = discovery.build('sheets', 'v4', http=http,
-                              discoveryServiceUrl=discoveryUrl)
+                              discoveryServiceUrl=discovery_url)
 
     rangeName = 'DefaultBank!A2:B'
     result = service.spreadsheets().values().get(
