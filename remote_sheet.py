@@ -17,7 +17,7 @@ CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Sheets API Python Quickstart'
 
 
-def get_credentials():
+def _get_credentials():
     """Gets valid user credentials from storage.
 
     If nothing has been stored, or if the stored credentials are invalid,
@@ -47,14 +47,17 @@ def get_credentials():
     return credentials
 
 
-def setup_sheet(spreadsheet_id):
-    credentials = get_credentials()
+def _get_service_connection(spreadsheet_id):
+    credentials = _get_credentials()
     http = credentials.authorize(httplib2.Http())
-    discovery_url = ('https://sheets.googleapis.com/$discovery/rest?'
-                    'version=v4')
+    discovery_url = ('https://sheets.googleapis.com/$discovery/rest?version=v4')
     service = discovery.build('sheets', 'v4', http=http,
                               discoveryServiceUrl=discovery_url)
+    return service
 
+
+def setup_sheet(spreadsheet_id):
+    service = _get_service_connection(spreadsheet_id)
     body = {
       'values': [['Date', 'Idea']]
     }
@@ -64,12 +67,7 @@ def setup_sheet(spreadsheet_id):
 
 
 def write_idea(timestamp, idea_string, spreadsheet_id):
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    discovery_url = ('https://sheets.googleapis.com/$discovery/rest?'
-                    'version=v4')
-    service = discovery.build('sheets', 'v4', http=http,
-                              discoveryServiceUrl=discovery_url)
+    service = _get_service_connection(spreadsheet_id)
 
     body = {
       'values': [[timestamp, idea_string]]
@@ -83,12 +81,7 @@ def read_ideas(spreadsheet_id):
     '''
     Returns a list of ideas (date, idea)
     '''
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    discovery_url = ('https://sheets.googleapis.com/$discovery/rest?'
-                    'version=v4')
-    service = discovery.build('sheets', 'v4', http=http,
-                              discoveryServiceUrl=discovery_url)
+    service = _get_service_connection(spreadsheet_id)
 
     rangeName = 'DefaultBank!A2:B'
     result = service.spreadsheets().values().get(
