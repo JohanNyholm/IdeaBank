@@ -1,7 +1,9 @@
 
 from __future__ import print_function
+
 import httplib2
 import os
+import idea_date
 
 from apiclient import discovery
 from oauth2client import tools
@@ -15,7 +17,7 @@ CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Sheets API Python Quickstart'
 
 spreadsheetId = '1yHpDejkJ-znUIRmvNA4Z64fJPpBo29Kl11Z3WRpD3rA'
-max_column_index=1
+max_column_index = 1
 
 
 def get_credentials():
@@ -27,11 +29,7 @@ def get_credentials():
     Returns:
         Credentials, the obtained credential.
     """
-    try:
-        import argparse
-        flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-    except ImportError:
-        flags = None
+    flags = tools.argparser.parse_known_args()
     home_dir = os.path.expanduser('~')
     credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
@@ -46,10 +44,11 @@ def get_credentials():
         flow.user_agent = APPLICATION_NAME
         if flags:
             credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
+        else:  # Needed only for compatibility with Python 2.6
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
+
 
 def write_idea(timestamp, idea_string):
     credentials = get_credentials()
@@ -66,7 +65,11 @@ def write_idea(timestamp, idea_string):
         spreadsheetId=spreadsheetId, range='DefaultBank!A2:B2',
         valueInputOption='RAW', body=body).execute()
 
+
 def read_ideas():
+    '''
+    Returns a list of ideas (date, idea)
+    '''
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
@@ -74,20 +77,14 @@ def read_ideas():
     service = discovery.build('sheets', 'v4', http=http,
                               discoveryServiceUrl=discoveryUrl)
 
-
     rangeName = 'DefaultBank!A2:B'
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     values = result.get('values', [])
+    idea_list = [(idea_date.parse_date(d), idea) for [d, idea] in values]
+    return idea_list
 
-    if not values:
-        print('No data found.')
-    else:
-        print('Name, Major:')
-        for i, row in enumerate(values):
-            # Print columns A and E, which correspond to indices 0 and 4.
-            print('%i: %s, %s' % (i, row[0], row[max_column_index]))
 
 if __name__ == '__main__':
-    write_idea('2017-01-01', 'yet another great idea')
+    write_idea('2017-01-01', 'sunday')
     read_ideas()
