@@ -4,8 +4,8 @@ import os
 STORAGE_FILE = ".storage.pkl"
 
 def get_storage_file():
-    d = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(d, STORAGE_FILE)
+    home_dir = os.path.expanduser('~')
+    return os.path.join(home_dir, STORAGE_FILE)
 
 
 def write_spreadsheet_id(spreadsheet_id):
