@@ -1,7 +1,7 @@
 import pickle
 import os
 
-STORAGE_FILE = ".storage.pkl"
+STORAGE_FILE = ".idea_bank_storage.pkl"
 
 def get_storage_file():
     home_dir = os.path.expanduser('~')
