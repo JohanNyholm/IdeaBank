@@ -51,7 +51,7 @@ def _get_credentials():
     return credentials
 
 
-def _get_service_connection(spreadsheet_id):
+def _get_service_connection():
     credentials = _get_credentials()
     http = credentials.authorize(httplib2.Http())
     discovery_url = ('https://sheets.googleapis.com/$discovery/rest?version=v4')
@@ -60,36 +60,38 @@ def _get_service_connection(spreadsheet_id):
     return service
 
 
-def setup_sheet(spreadsheet_id):
-    service = _get_service_connection(spreadsheet_id)
+def init_sheet(spreadsheet_object):
+    service = _get_service_connection()
     body = {
       'values': [['Date', 'Idea']]
     }
     result = service.spreadsheets().values().update(
-        spreadsheetId=spreadsheet_id, range='DefaultBank!A1:B1',
+        spreadsheetId=spreadsheet_object.spreadsheet_id,
+        range='{0}!A1:B1'.format(spreadsheet_object.sheet_name),
         valueInputOption='RAW', body=body).execute()
 
 
-def write_idea(timestamp, idea_string, spreadsheet_id):
-    service = _get_service_connection(spreadsheet_id)
+def write_idea(timestamp, idea_string, spreadsheet_object):
+    service = _get_service_connection()
 
     body = {
       'values': [[timestamp, idea_string]]
     }
     result = service.spreadsheets().values().append(
-        spreadsheetId=spreadsheet_id, range='DefaultBank!A2:B2',
+        spreadsheetId=spreadsheet_object.spreadsheet_id,
+        range='{0}!A2:B2'.format(spreadsheet_object.sheet_name),
         valueInputOption='RAW', body=body).execute()
 
 
-def read_ideas(spreadsheet_id):
+def read_ideas(spreadsheet_object):
     '''
     Returns a list of ideas (date, idea)
     '''
-    service = _get_service_connection(spreadsheet_id)
+    service = _get_service_connection()
 
-    rangeName = 'DefaultBank!A2:B'
+    rangeName = '{0}!A2:B'.format(spreadsheet_object.sheet_name)
     result = service.spreadsheets().values().get(
-        spreadsheetId=spreadsheet_id, range=rangeName).execute()
+        spreadsheetId=spreadsheet_object.spreadsheet_id, range=rangeName).execute()
     values = result.get('values', [])
     idea_list = [(idea_date.parse_date(d), idea) for [d, idea] in values]
     return idea_list
