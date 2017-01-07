@@ -26,7 +26,11 @@ def _get_credentials():
     Returns:
         Credentials, the obtained credential.
     """
-    flags = tools.argparser.parse_known_args()
+    try:
+        import argparse
+        flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_known_args()[0]
+    except ImportError:
+        flags = None
     home_dir = os.path.expanduser('~')
     credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):

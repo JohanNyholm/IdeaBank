@@ -11,7 +11,6 @@ import argparse
 import datetime
 
 
-
 def prepare_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('idea_string', nargs='?')
