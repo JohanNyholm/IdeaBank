@@ -2,7 +2,6 @@
 A simple command line tool for storing ideas into a google sheet
 
 
-
 ## Setup
 1. Make sure you have Python 2.6 or greater as well as pip installed.
 
